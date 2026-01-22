@@ -4,11 +4,14 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 /*
 Le JWT contient l’identité de l’utilisateur, une date d’expiration et
@@ -18,26 +21,37 @@ ce qui rend l’API stateless.
  */
 @Service
 public class JwtService {
-    private static final String SECRET_KEY="my-super-secret-key-my-super-secret-key";
+    @Value(value = "${app.jwt-secret}")
+    private String jwtSecret;
+
+    @Value(value = "${app.jwt-expiration-in-ms}")
+    private int jwtExpirationInMs;
 
     //Le token contient : user + expiration
     //Méthode appelée après authentification réussie pour generer le token
-    public String generateToken(String userName){
+    public String generateToken(String username, Collection<String> roles){
         return Jwts.builder()
-                .setSubject(userName)
+                .setSubject(username)
+                .claim("roles",roles)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis()+1000*60*60))  //1h
+                .setExpiration(new Date(System.currentTimeMillis()+jwtExpirationInMs))  //1h
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
     //Convertit la clé String en clé crypto
     private Key getSignKey() {
-        return Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
     //Permet de récupérer l’utilisateur depuis le JWT
-    public String extractUserName(String token){
+    public String extractUsername(String token){
         return extractAllClaims(token).getSubject();
     }
+
+    public List<String> extractRoles(String token) {
+        Claims claims = extractAllClaims(token);
+        return claims.get("roles", List.class);
+    }
+
     //Méthode appelée par le filtre JWT
     public boolean isTokenValid(String token) {
         try {

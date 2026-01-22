@@ -17,3 +17,8 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+
+app:
+  jwt-secret: my-super-secret-key-my-super-secret-key
+  jwt-expiration-in-ms: 36000000
+  jwt-refresh-expiration-ms: 604800000

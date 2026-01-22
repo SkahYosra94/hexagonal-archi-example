@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.List;
 @Tag(name = "Products", description = "Gestion des produits")
 @RestController
 @RequestMapping("/v1/products")
+@PreAuthorize("isAuthenticated()")
 public class ProductRestAdapter{
 private final ProductInputPort productInputPort;
 private final ProductRestMapper productRestMapper;
@@ -33,6 +35,7 @@ private final ProductRestMapper productRestMapper;
     )
     @ApiResponse(responseCode = "201", description = "Product successfully created")
     @ApiResponse(responseCode = "400", description = "Invalid data")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest productRequest){
         Product product= productRestMapper.toProduct(productRequest);
@@ -45,6 +48,7 @@ private final ProductRestMapper productRestMapper;
 
     @Operation(summary = "List of all products")
     @ApiResponse(responseCode = "200", description = "List of products")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping
     public ResponseEntity<List<ProductResponse>>  getAllProduct(){
         List<ProductResponse> products=productInputPort.getAllProducts().stream().map(productRestMapper::toProductResponse).toList();
@@ -55,6 +59,7 @@ private final ProductRestMapper productRestMapper;
     @Operation(summary = "Get product by ID")
     @ApiResponse(responseCode = "200", description = "Product found")
     @ApiResponse(responseCode = "404", description = "Product not found")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse>  getProductById(@PathVariable("id") Long productId){
         Product product=productInputPort.getProductById(productId);
@@ -63,6 +68,7 @@ private final ProductRestMapper productRestMapper;
 
     @Operation(summary = "Delete product")
     @ApiResponse(responseCode = "204", description = "Product deleted")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void>  deleteProductById(@PathVariable("id") Long productId){
         productInputPort.deleteProductById(productId);
