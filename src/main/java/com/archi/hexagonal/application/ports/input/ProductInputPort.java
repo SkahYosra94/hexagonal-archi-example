@@ -9,4 +9,5 @@ public interface ProductInputPort {
     Product createProduct(Product product);
     Product getProductById(Long id);
     List<Product> getAllProducts();
+    void deleteProductById(Long id);
 }

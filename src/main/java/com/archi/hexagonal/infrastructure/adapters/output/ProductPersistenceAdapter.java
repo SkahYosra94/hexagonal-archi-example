@@ -3,20 +3,22 @@ package com.archi.hexagonal.infrastructure.adapters.output;
 import com.archi.hexagonal.application.ports.output.ProductOutputPort;
 import com.archi.hexagonal.domain.model.Product;
 import com.archi.hexagonal.infrastructure.adapters.output.entity.ProductEntity;
-import com.archi.hexagonal.infrastructure.adapters.output.mapper.ProductMapper;
+import com.archi.hexagonal.infrastructure.adapters.output.mapper.ProductPersistenceMapper;
 import com.archi.hexagonal.infrastructure.adapters.output.repository.ProductRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class ProductPersistenceAdapter implements ProductOutputPort {
     private final ProductRepository productRepository;
-    private final ProductMapper productMapper;
+    private final ProductPersistenceMapper productPersistenceMapper;
 
-    public ProductPersistenceAdapter(ProductRepository productRepository, ProductMapper productMapper) {
+    public ProductPersistenceAdapter(ProductRepository productRepository, ProductPersistenceMapper productPersistenceMapper) {
         this.productRepository = productRepository;
-        this.productMapper = productMapper;
+        this.productPersistenceMapper = productPersistenceMapper;
     }
 
     /**
@@ -25,9 +27,9 @@ public class ProductPersistenceAdapter implements ProductOutputPort {
      */
     @Override
     public Product saveProduct(Product product) {
-        ProductEntity entity=productMapper.toEntity(product);
+        ProductEntity entity= productPersistenceMapper.toEntity(product);
         entity=productRepository.save(entity);
-        return productMapper.toProduct(entity);
+        return productPersistenceMapper.toProduct(entity);
     }
 
     /**
@@ -40,7 +42,7 @@ public class ProductPersistenceAdapter implements ProductOutputPort {
         if(productEntity.isEmpty()){
             return Optional.empty();
         }
-        Product product=productMapper.toProduct(productEntity.get());
+        Product product= productPersistenceMapper.toProduct(productEntity.get());
         return Optional.of(product);
     }
 
@@ -51,7 +53,15 @@ public class ProductPersistenceAdapter implements ProductOutputPort {
     public List<Product> getAllProduct() {
         List<ProductEntity> productEntities = productRepository.findAll();
         List<Product> rsp=new ArrayList<>();
-        productEntities.forEach(productEntity -> rsp.add(productMapper.toProduct(productEntity)));
+        productEntities.forEach(productEntity -> rsp.add(productPersistenceMapper.toProduct(productEntity)));
         return rsp;
+    }
+
+    /**
+     * @param id
+     */
+    @Override
+    public void deleteProductById(Long id) {
+        productRepository.deleteById(id);
     }
 }

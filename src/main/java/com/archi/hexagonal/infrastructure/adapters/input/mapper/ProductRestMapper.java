@@ -6,7 +6,7 @@ import com.archi.hexagonal.infrastructure.adapters.input.rest.data.ProductRespon
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProductMapper {
+public class ProductRestMapper {
 
     public ProductResponse toProductResponse(Product product){
         return new ProductResponse(product.id(), product.name(), product.description());

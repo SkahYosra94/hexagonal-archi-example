@@ -2,8 +2,10 @@ package com.archi.hexagonal.infrastructure.adapters.output.mapper;
 
 import com.archi.hexagonal.domain.model.Product;
 import com.archi.hexagonal.infrastructure.adapters.output.entity.ProductEntity;
+import org.springframework.stereotype.Component;
 
-public class ProductMapper {
+@Component
+public class ProductPersistenceMapper {
 
     public ProductEntity toEntity(Product product){
         ProductEntity entity=new ProductEntity();

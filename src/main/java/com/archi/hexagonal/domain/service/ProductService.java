@@ -47,4 +47,12 @@ private final Logger log=LoggerFactory.getLogger(ProductService.class);
     public List<Product> getAllProducts() {
         return productOutputPort.getAllProduct();
     }
+
+    /**
+     * @param id
+     */
+    @Override
+    public void deleteProductById(Long id) {
+        productOutputPort.deleteProductById(id);
+    }
 }
