@@ -1,29 +1,101 @@
-The main idea behind this architecture is to isolate domain logic from external components when designing software applications.
+## 🧩 Hexagonal Architecture Overview
 
-Access to domain logic from the outside is available through ports and adapters.
+The main idea behind **Hexagonal Architecture (Ports & Adapters)** is to **isolate the domain logic from external technical concerns** such as databases, web frameworks, or messaging systems.
 
+The domain remains at the center of the application and is accessed only through well-defined **ports**, which are implemented by **adapters**.
 
-A port is just an interface to be implemented by an adapter. There are two types of ports: input and output. We implement the first ones in the domain layer, while the infrastructure module will contain the implementation of the second ones.
-Application
-The application layer will contain the ports, which are interfaces that allow inbound or outbound flow.
+---
 
-We created use cases inside the input package, defining what the user would like to do in the application. In our example, create new products and get them by Id.
+## Ports & Adapters
 
-On the other hand, we use the output package to connect to some external components. In our example, ProductOutputPort will get data from the database.
+A **port** is simply an interface that defines how the application communicates with the outside world.
 
-Infrastructure
-The infrastructure layer represents the outer part of the hexagonal architecture through adapters.
+There are two types of ports:
 
-Adapters interact with the core application only by using the inbound and outbound ports.
+### ➡️ Input Ports (Inbound)
+- Represent **use cases** of the application
+- Define what the user or external system can do
+- Implemented by the **domain layer**
+- Called by inbound adapters (REST controllers, message consumers, etc.)
 
-We divide the infrastructure.adapters package into three new ones:
+### ⬅️ Output Ports (Outbound)
+- Represent dependencies on external systems
+- Used to access databases, external APIs, message brokers, etc.
+- Defined in the **application layer**
+- Implemented by outbound adapters in the infrastructure layer
 
-config: it contains the beans of the application
-input: it drives the application by invoking the corresponding use case (input port)
-output: it provides an implementation of the output ports (databases or messaging queues)
-Domain
-The domain layer is the center of the system. It handles the business logic and represents the application core.
+---
 
-The domain layer is wholly decoupled from application and infrastructure layers, so changes in the other layers have no impact on the Product domain object unless there is a change in the business requirements.
+## Application Layer
 
-The ProductService is a crucial component inside the domain, as it implements the input ports and uses the output interfaces implemented by the output adapters to return the result to the input adapters
+The **application layer** acts as a boundary around the domain.
+
+It contains:
+- Input and output ports (interfaces)
+- Use case definitions
+
+In this project, the input ports define use cases such as:
+- Creating a new product
+- Retrieving a product by its identifier
+
+The output ports define contracts to interact with external systems.
+For example, `ProductOutputPort` defines how product data is persisted or retrieved, without knowing how or where.
+
+---
+
+## Infrastructure Layer
+
+The **infrastructure layer** represents the outer part of the hexagonal architecture.
+
+It contains **adapters** that implement the application ports and handle technical concerns.
+
+The `infrastructure.adapters` package is divided into:
+
+- **config**  
+  Contains Spring configuration and bean definitions
+
+- **input**  
+  Inbound adapters that drive the application  
+  (e.g. REST controllers invoking input ports)
+
+- **output**  
+  Outbound adapters implementing output ports  
+  (e.g. database repositories, external services)
+
+Adapters interact with the core application **only through ports**, ensuring loose coupling.
+
+---
+
+## Domain Layer
+
+The **domain layer** is the heart of the system.
+
+It contains:
+- Domain entities
+- Business rules
+- Domain services
+
+This layer is completely **decoupled from both application and infrastructure layers**.
+Changes in frameworks, databases, or APIs do not impact the domain unless business requirements change.
+
+### ProductService
+
+`ProductService` is a key domain component:
+- Implements input ports (use cases)
+- Uses output ports to access external systems
+- Contains the core business logic
+
+This design guarantees:
+- High testability
+- Strong separation of concerns
+- Long-term maintainability
+
+---
+
+## ✅ Benefits of Hexagonal Architecture
+
+- Clear separation between business logic and technical concerns
+- Easier unit testing of domain logic
+- Technology-agnostic core
+- Better adaptability to change
+- Improved readability and maintainability
