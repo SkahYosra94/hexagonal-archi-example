@@ -1,13 +1,13 @@
 package com.archi.hexagonal.infrastructure.adapters.input.rest.exception;
 
 import com.archi.hexagonal.domain.exception.ProductNotFoundException;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -23,6 +23,7 @@ public class GlobalExceptionHandler {
 
     private final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     // Gestion validation des entrées
+    @ApiResponse(responseCode = "400", description = "Validation Error")
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -33,6 +34,7 @@ public class GlobalExceptionHandler {
     }
 
     // Gestion ressource non trouvée
+    @ApiResponse(responseCode = "404", description = "Product not found")
     @ExceptionHandler(ProductNotFoundException.class)
     public ResponseEntity<ApiError> handleUserNotFound(ProductNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiError(ex.getMessage(),
@@ -42,6 +44,7 @@ public class GlobalExceptionHandler {
     }
 
     // Gestion générique
+    @ApiResponse(responseCode = "500", description = "Internal error")
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleOtherErrors(Exception ex) {
         log.error("Unexpected error", ex);
