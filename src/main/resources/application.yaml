@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: hexagonal
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.archi.hexagonal: info
